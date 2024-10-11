@@ -11,7 +11,7 @@ namespace TestProject.Domain.Model
     {
         public int ProcessID { get; set; }
         public string ProcessCode { get; set; }
-        public string ProcessName { get; set; }
+        public string? ProcessName { get; set; }
         public int CategoryID { get; set; }
         public ProcessCategory Category { get; set; }
         public int? OwnerDepartmentID { get; set; }

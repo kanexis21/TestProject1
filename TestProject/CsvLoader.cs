@@ -42,14 +42,13 @@ private readonly AppDbContext _context;
         {
             Encoding = Encoding.GetEncoding("windows-1251"),
             HeaderValidated = null,
-            MissingFieldFound = null, 
-            Delimiter = ";" 
+            MissingFieldFound = null,
+            Delimiter = ";"
         };
 
         using (var reader = new StreamReader(csvFilePath, Encoding.GetEncoding("windows-1251")))
         using (var csv = new CsvReader(reader, config))
         {
-
             var records = csv.GetRecords<CsvRecord>().ToList();
 
             foreach (var record in records)
@@ -58,16 +57,20 @@ private readonly AppDbContext _context;
                     .FirstOrDefault(c => c.CategoryName == record.CategoryName)
                     ?? new ProcessCategory { CategoryName = record.CategoryName };
 
-                var department = _context.Departments
-                    .FirstOrDefault(d => d.DepartmentName == record.OwnerDepartmentName)
-                    ?? new Department { DepartmentName = record.OwnerDepartmentName };
+                Department department = null;
+                if (!string.IsNullOrWhiteSpace(record.OwnerDepartmentName))
+                {
+                    department = _context.Departments
+                        .FirstOrDefault(d => d.DepartmentName == record.OwnerDepartmentName)
+                        ?? new Department { DepartmentName = record.OwnerDepartmentName };
+                }
 
                 var process = new TestProject.Domain.Model.Process
                 {
                     ProcessCode = record.ProcessCode,
                     ProcessName = record.ProcessName,
                     Category = category,
-                    Department = department
+                    Department = department // Это может быть null
                 };
 
                 _context.Processes.Add(process);

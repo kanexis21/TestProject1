@@ -10,7 +10,7 @@ namespace TestProject.Base.Domain
     public class ProcessCategory
     {
         public int CategoryID { get; set; }
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
 
         public ICollection<Process> Processes { get; set; }
     }
