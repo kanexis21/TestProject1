@@ -18,7 +18,9 @@ namespace TestProject.Domain
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=localhost;Database=TestProject1;Integrated Security=True;AttachDbFilename=C:\\source\\repos\\TestProject\\TestProject\\TestProject.mdf;User Instance=False;");
+            string relativePath = @"TestProject.mdf"; 
+            string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+            optionsBuilder.UseSqlServer($"Server=localhost;Database=TestProject;Integrated Security=True;AttachDbFilename={absolutePath};");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
