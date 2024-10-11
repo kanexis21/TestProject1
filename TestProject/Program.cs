@@ -1,4 +1,5 @@
 ﻿using System;
+using TestProject.Domain;
 
 class Program
 {
@@ -7,7 +8,7 @@ class Program
         using (var context = new AppDbContext())
         {
             var loader = new CsvLoader(context);
-            loader.LoadCsvData("path_to_your_file.csv");
+            loader.LoadCsvData("C:\\Users\\Администратор\\source\\repos\\TestProject\\TestProject\\Тестовые данные.CSV");
         }
 
         Console.WriteLine("Данные успешно загружены.");

@@ -1,12 +1,33 @@
 ﻿using System.Diagnostics;
-using System.Formats.Asn1;
 using System.Globalization;
 using System.Text;
-using System;
+using CsvHelper;
+using CsvHelper.Configuration;
+using TestProject.Domain;
+using TestProject.Domain.Model;
+using TestProject.Base.Domain;
+using Microsoft.EntityFrameworkCore;
+using CsvHelper.Configuration.Attributes;
 
 public class CsvLoader
 {
-    private readonly AppDbContext _context;
+    public class CsvRecord
+    {
+        [Name("Категория")] 
+        public string CategoryName { get; set; }
+
+        [Name("Код процесса")] 
+        public string ProcessCode { get; set; }
+
+        [Name("Название процесса")]
+        public string ProcessName { get; set; }
+
+        [Name("Отдел")]
+        public string OwnerDepartmentName { get; set; }
+    }
+
+
+private readonly AppDbContext _context;
 
     public CsvLoader(AppDbContext context)
     {
@@ -15,11 +36,19 @@ public class CsvLoader
 
     public void LoadCsvData(string csvFilePath)
     {
-        using (var reader = new StreamReader(csvFilePath, Encoding.GetEncoding("windows-1251")))
-        using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            csv.Configuration.HeaderValidated = null;
-            csv.Configuration.MissingFieldFound = null;
+            Encoding = Encoding.GetEncoding("windows-1251"),
+            HeaderValidated = null,
+            MissingFieldFound = null, 
+            Delimiter = ";" 
+        };
+
+        using (var reader = new StreamReader(csvFilePath, Encoding.GetEncoding("windows-1251")))
+        using (var csv = new CsvReader(reader, config))
+        {
 
             var records = csv.GetRecords<CsvRecord>().ToList();
 
@@ -33,7 +62,7 @@ public class CsvLoader
                     .FirstOrDefault(d => d.DepartmentName == record.OwnerDepartmentName)
                     ?? new Department { DepartmentName = record.OwnerDepartmentName };
 
-                var process = new Process
+                var process = new TestProject.Domain.Model.Process
                 {
                     ProcessCode = record.ProcessCode,
                     ProcessName = record.ProcessName,
@@ -47,12 +76,5 @@ public class CsvLoader
             _context.SaveChanges();
         }
     }
-}
 
-public class CsvRecord
-{
-    public string CategoryName { get; set; }
-    public string ProcessCode { get; set; }
-    public string ProcessName { get; set; }
-    public string OwnerDepartmentName { get; set; }
 }

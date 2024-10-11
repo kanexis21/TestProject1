@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace TestProject.Domain.Model
 {
-    internal class Department
+    public class Department
     {
+        public int DepartmentID { get; set; }
+        public string DepartmentName { get; set; }
+
+        public ICollection<Process> Processes { get; set; }
     }
 }
