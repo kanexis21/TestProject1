@@ -18,7 +18,7 @@ namespace TestProject.Domain
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=localhost;Database=Test;User Id=sa;Password=sa;");
+            optionsBuilder.UseSqlServer("Server=localhost;Database=TestProject1;Integrated Security=True;AttachDbFilename=C:\\source\\repos\\TestProject\\TestProject\\TestProject.mdf;User Instance=False;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
