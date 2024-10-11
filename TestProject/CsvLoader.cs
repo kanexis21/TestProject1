@@ -13,21 +13,20 @@ public class CsvLoader
 {
     public class CsvRecord
     {
-        [Name("Категория")] 
+        [Name("Категория процесса")]
         public string CategoryName { get; set; }
 
-        [Name("Код процесса")] 
+        [Name("Код процесса")]
         public string ProcessCode { get; set; }
 
-        [Name("Название процесса")]
+        [Name("Наименование процесса")]
         public string ProcessName { get; set; }
 
-        [Name("Отдел")]
+        [Name("Подразделение-владелец процесса")]
         public string OwnerDepartmentName { get; set; }
     }
 
-
-private readonly AppDbContext _context;
+    private readonly AppDbContext _context;
 
     public CsvLoader(AppDbContext context)
     {
@@ -46,6 +45,8 @@ private readonly AppDbContext _context;
             Delimiter = ";"
         };
 
+        ClearDatabase();
+
         using (var reader = new StreamReader(csvFilePath, Encoding.GetEncoding("windows-1251")))
         using (var csv = new CsvReader(reader, config))
         {
@@ -53,6 +54,26 @@ private readonly AppDbContext _context;
 
             foreach (var record in records)
             {
+                Debug.WriteLine($"Category: {record.CategoryName}, ProcessCode: {record.ProcessCode}, ProcessName: {record.ProcessName}, OwnerDepartmentName: {record.OwnerDepartmentName}");
+
+                // Проверка на пустые значения
+                if (string.IsNullOrWhiteSpace(record.CategoryName) ||
+                    string.IsNullOrWhiteSpace(record.ProcessCode) ||
+                    string.IsNullOrWhiteSpace(record.ProcessName))
+                {
+                    Debug.WriteLine($"Пропуск записи: {record.CategoryName}, {record.ProcessCode}, {record.ProcessName}");
+                    continue; 
+                }
+
+                var existingProcess = _context.Processes
+                    .FirstOrDefault(p => p.ProcessCode == record.ProcessCode && p.ProcessName == record.ProcessName);
+
+                if (existingProcess != null)
+                {
+                    Debug.WriteLine($"Запись уже существует: {existingProcess.ProcessCode}");
+                    continue; 
+                }
+
                 var category = _context.ProcessCategories
                     .FirstOrDefault(c => c.CategoryName == record.CategoryName)
                     ?? new ProcessCategory { CategoryName = record.CategoryName };
@@ -70,7 +91,7 @@ private readonly AppDbContext _context;
                     ProcessCode = record.ProcessCode,
                     ProcessName = record.ProcessName,
                     Category = category,
-                    Department = department // Это может быть null
+                    Department = department 
                 };
 
                 _context.Processes.Add(process);
@@ -78,6 +99,15 @@ private readonly AppDbContext _context;
 
             _context.SaveChanges();
         }
+    }
+
+    private void ClearDatabase()
+    {
+        _context.Processes.RemoveRange(_context.Processes);
+        _context.Departments.RemoveRange(_context.Departments);
+        _context.ProcessCategories.RemoveRange(_context.ProcessCategories);
+
+        _context.SaveChanges();
     }
 
 }
