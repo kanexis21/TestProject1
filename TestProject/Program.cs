@@ -8,7 +8,7 @@ class Program
         using (var context = new AppDbContext())
         {
             var loader = new CsvLoader(context);
-            loader.LoadCsvData("C:\\Users\\Администратор\\source\\repos\\TestProject\\TestProject\\Тестовые данные.CSV");
+            loader.LoadCsvData("Тестовые данные.CSV");
         }
 
         Console.WriteLine("Данные успешно загружены.");
