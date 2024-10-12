@@ -2,7 +2,8 @@
 using TestProject.Base.Domain;
 using TestProject.Domain.Model;
 using TestProject.Domain;
-namespace TestProject.LoadModul.CsvRecord
+
+namespace TestProject.LoadHandler.CsvControl
 {
     public class CsvRecord
     {
