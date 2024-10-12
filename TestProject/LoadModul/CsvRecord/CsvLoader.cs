@@ -13,13 +13,11 @@ public class CsvLoader : ICsvLoader
 {
     private readonly AppDbContext _context;
     private readonly CsvRecordProcessor _recordProcessor;
-    private readonly DatabaseManager _databaseManager;
 
     public CsvLoader(AppDbContext context)
     {
         _context = context;
         _recordProcessor = new CsvRecordProcessor(context);
-        _databaseManager = new DatabaseManager(context);
     }
 
     public void LoadCsvData(string csvFilePath)
@@ -34,7 +32,6 @@ public class CsvLoader : ICsvLoader
             Delimiter = ";"
         };
 
-        _databaseManager.ClearDatabase();
 
         using (var reader = new StreamReader(csvFilePath, Encoding.GetEncoding("windows-1251")))
         using (var csv = new CsvReader(reader, config))
