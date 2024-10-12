@@ -1,7 +1,6 @@
 ﻿using CsvHelper.Configuration.Attributes;
-using TestProject.Base.Domain;
-using TestProject.Domain.Model;
 using TestProject.Domain;
+using TestProject.Domain.Model;
 
 namespace TestProject.LoadHandler.CsvControl
 {
@@ -29,34 +28,29 @@ namespace TestProject.LoadHandler.CsvControl
             _context = context;
         }
 
-        public TestProject.Domain.Model.Process ProcessRecord(CsvRecord record)
+        // Метод для обработки одной записи CSV
+        public Process ProcessRecord(CsvRecord record)
         {
-            var category = _context.ProcessCategories
-                .FirstOrDefault(c => c.CategoryName == record.CategoryName)
-                ?? new ProcessCategory { CategoryName = record.CategoryName };
-
-            Department department = null;
-            if (!string.IsNullOrWhiteSpace(record.OwnerDepartmentName))
-            {
-                department = _context.Departments
-                    .FirstOrDefault(d => d.DepartmentName == record.OwnerDepartmentName)
-                    ?? new Department { DepartmentName = record.OwnerDepartmentName };
-            }
-
-            return new TestProject.Domain.Model.Process
+            // Создаем объект процесса
+            var process = new Process
             {
                 ProcessCode = record.ProcessCode,
                 ProcessName = record.ProcessName,
-                Category = category,
-                Department = department
+                CategoryName = record.CategoryName,
+                OwnerDepartmentName = record.OwnerDepartmentName
             };
+
+            return process;
         }
 
+        // Метод для проверки валидности записи
         public bool IsRecordValid(CsvRecord record)
         {
+            // Проверяем, что ключевые поля не пусты
             return !string.IsNullOrWhiteSpace(record.CategoryName) &&
                    !string.IsNullOrWhiteSpace(record.ProcessCode) &&
                    !string.IsNullOrWhiteSpace(record.ProcessName);
         }
     }
+
 }

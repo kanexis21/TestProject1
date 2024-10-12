@@ -10,42 +10,45 @@ using TestProject.LoadHandler.InterfaceCsv;
 
 namespace TestProject.LoadHandler.CsvControl
 {
-    public class CsvLoader : ICsvLoader
+    public class CsvLoader
     {
         private readonly AppDbContext _context;
         private readonly CsvRecordProcessor _recordProcessor;
-        private readonly ICsvReaderFactory _csvReaderFactory;
 
-        public CsvLoader(AppDbContext context, CsvRecordProcessor recordProcessor, ICsvReaderFactory csvReaderFactory)
+        public CsvLoader(AppDbContext context)
         {
             _context = context;
-            _recordProcessor = recordProcessor;
-            _csvReaderFactory = csvReaderFactory;
+            _recordProcessor = new CsvRecordProcessor(context);
         }
 
         public void LoadCsvData(string csvFilePath)
         {
-            using (var reader = _csvReaderFactory.CreateCsvReader(csvFilePath))
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                var records = reader.GetRecords<CsvRecord>().ToList();
+                Encoding = Encoding.GetEncoding("windows-1251"),
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                Delimiter = ";"
+            };
+
+            using (var reader = new StreamReader(csvFilePath, Encoding.GetEncoding("windows-1251")))
+            using (var csv = new CsvReader(reader, config))
+            {
+                var records = csv.GetRecords<CsvRecord>().ToList();
 
                 foreach (var record in records)
                 {
                     if (!_recordProcessor.IsRecordValid(record))
                     {
-                        continue;
-                    }
-
-                    var existingProcess = _context.Processes
-                        .FirstOrDefault(p => p.ProcessCode == record.ProcessCode && p.ProcessName == record.ProcessName);
-
-                    if (existingProcess != null)
-                    {
+                        Debug.WriteLine($"Пропуск записи: {record.ProcessCode}, {record.ProcessName}");
                         continue;
                     }
 
                     var process = _recordProcessor.ProcessRecord(record);
-                    _context.Processes.Add((TestProject.Domain.Model.Process)process);
+
+                    _context.Processes.Add(process); 
                 }
 
                 _context.SaveChanges();
@@ -53,4 +56,5 @@ namespace TestProject.LoadHandler.CsvControl
         }
     }
 }
+
 
