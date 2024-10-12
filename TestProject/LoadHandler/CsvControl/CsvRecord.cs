@@ -1,6 +1,7 @@
 ﻿using CsvHelper.Configuration.Attributes;
 using TestProject.Domain;
 using TestProject.Domain.Model;
+using TestProject.LoadHandler.InterfaceCsv;
 
 namespace TestProject.LoadHandler.CsvControl
 {
@@ -19,7 +20,7 @@ namespace TestProject.LoadHandler.CsvControl
         public string OwnerDepartmentName { get; set; }
     }
 
-    public class CsvRecordProcessor
+    public class CsvRecordProcessor : ICsvRecordProcessor
     {
         private readonly AppDbContext _context;
 

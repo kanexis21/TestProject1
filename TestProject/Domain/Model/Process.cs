@@ -1,6 +1,4 @@
-﻿
-
-namespace TestProject.Domain.Model
+﻿namespace TestProject.Domain.Model
 {
     public class Process
     {
@@ -10,6 +8,4 @@ namespace TestProject.Domain.Model
         public string? CategoryName { get; set; }          
         public string? OwnerDepartmentName { get; set; }    
     }
-
-
 }

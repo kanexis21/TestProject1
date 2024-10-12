@@ -4,7 +4,6 @@ using TestProject.LoadHandler.CsvControl;
 
 class Program
 {
-    // Получаем путь к директории проекта
     static string projectDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
 
     // Формируем путь к файлу базы данных
