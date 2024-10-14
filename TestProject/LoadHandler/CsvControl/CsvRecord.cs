@@ -1,26 +1,14 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using System.Diagnostics;
 using TestProject.Domain;
 using TestProject.Domain.Model;
+using TestProject.LoadHandler.CsvControl.Record;
 using TestProject.LoadHandler.InterfaceCsv;
+using Process = TestProject.Domain.Model.Process;
 
 namespace TestProject.LoadHandler.CsvControl
 {
-    public class CsvRecord
-    {
-        [Name("Категория процесса")]
-        public string CategoryName { get; set; }
-
-        [Name("Код процесса")]
-        public string ProcessCode { get; set; }
-
-        [Name("Наименование процесса")]
-        public string ProcessName { get; set; }
-
-        [Name("Подразделение-владелец процесса")]
-        public string OwnerDepartmentName { get; set; }
-    }
-
-    public class CsvRecordProcessor : ICsvRecordProcessor
+    public class CsvRecordProcessor : ICsvRecordProcessor<CsvRecordProcess>
     {
         private readonly AppDbContext _context;
 
@@ -29,10 +17,8 @@ namespace TestProject.LoadHandler.CsvControl
             _context = context;
         }
 
-        // Метод для обработки одной записи CSV
-        public Process ProcessRecord(CsvRecord record)
+        public Process ProcessRecord(CsvRecordProcess record)
         {
-            // Создаем объект процесса
             var process = new Process
             {
                 ProcessCode = record.ProcessCode,
@@ -44,14 +30,13 @@ namespace TestProject.LoadHandler.CsvControl
             return process;
         }
 
-        // Метод для проверки валидности записи
-        public bool IsRecordValid(CsvRecord record)
+        public bool IsRecordValid(CsvRecordProcess record)
         {
-            // Проверяем, что ключевые поля не пусты
             return !string.IsNullOrWhiteSpace(record.CategoryName) &&
                    !string.IsNullOrWhiteSpace(record.ProcessCode) &&
                    !string.IsNullOrWhiteSpace(record.ProcessName);
         }
     }
+
 
 }

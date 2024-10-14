@@ -1,26 +1,36 @@
 ﻿using System;
 using TestProject.Domain;
 using TestProject.LoadHandler.CsvControl;
+using TestProject.LoadHandler.Encording.Implimentations;
+using TestProject.LoadHandler.Encording.Interfaceses;
+using TestProject.LoadHandler.InterfaceCsv;
 
 class Program
 {
     static string projectDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
-
-    // Формируем путь к файлу базы данных
     static string DataCsvFilePath = Path.Combine(projectDirectory, "Тестовые данные.CSV");
     static void Main(string[] args)
     {
-        using (var context = new AppDbContext())
+        try
         {
-            var csvReaderFactory = new CsvReaderFactory();
-            var recordProcessor = new CsvRecordProcessor(context);
-            var loader = new CsvLoader(context);
+            using (var context = new AppDbContext())
+            {
+                var encodingStrategy = new Windows1251EncodingStrategy();
+                var csvReaderFactory = new CsvReaderFactory(encodingStrategy);
 
+                var recordProcessor = new CsvRecordProcessor(context);
+                var loader = new CsvLoader(context);
 
-            loader.LoadCsvData(DataCsvFilePath);
+                loader.LoadCsvData(DataCsvFilePath, csvReaderFactory, recordProcessor);
+            }
+
+            Console.WriteLine("Данные успешно загружены.");
         }
-
-        Console.WriteLine("Данные успешно загружены.");
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при загрузке данных: {ex.Message}");
+        }
     }
+
 }
 

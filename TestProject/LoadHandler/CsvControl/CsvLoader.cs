@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -7,54 +6,50 @@ using System.IO;
 using System.Linq;
 using TestProject.Domain;
 using TestProject.LoadHandler.InterfaceCsv;
+using TestProject.LoadHandler.CsvControl.Record;
 
 namespace TestProject.LoadHandler.CsvControl
 {
     public class CsvLoader
     {
         private readonly AppDbContext _context;
-        private readonly CsvRecordProcessor _recordProcessor;
 
         public CsvLoader(AppDbContext context)
         {
             _context = context;
-            _recordProcessor = new CsvRecordProcessor(context);
         }
 
-        public void LoadCsvData(string csvFilePath)
+        public void LoadCsvData(string csvFilePath, ICsvReaderFactory csvReaderFactory, ICsvRecordProcessor<CsvRecordProcess> recordProcessor)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            try
             {
-                Encoding = Encoding.GetEncoding("windows-1251"),
-                HeaderValidated = null,
-                MissingFieldFound = null,
-                Delimiter = ";"
-            };
-
-            using (var reader = new StreamReader(csvFilePath, Encoding.GetEncoding("windows-1251")))
-            using (var csv = new CsvReader(reader, config))
-            {
-                var records = csv.GetRecords<CsvRecord>().ToList();
-
-                foreach (var record in records)
+                using (var csvReader = csvReaderFactory.CreateCsvReader(csvFilePath))
                 {
-                    if (!_recordProcessor.IsRecordValid(record))
+                    var records = csvReader.GetRecords<CsvRecordProcess>().ToList();
+
+                    foreach (var record in records)
                     {
-                        Debug.WriteLine($"Пропуск записи: {record.ProcessCode}, {record.ProcessName}");
-                        continue;
+                        if (!recordProcessor.IsRecordValid(record))
+                        {
+                            Console.WriteLine($"Пропуск записи: {record.ProcessCode}, {record.ProcessName}");
+                            continue;
+                        }
+
+                        var process = recordProcessor.ProcessRecord(record);
+                        _context.Processes.Add(process);
                     }
 
-                    var process = _recordProcessor.ProcessRecord(record);
-
-                    _context.Processes.Add(process); 
+                    _context.SaveChanges();
                 }
-
-                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при загрузке данных из CSV: {ex.Message}");
             }
         }
+
     }
+
 }
 
 

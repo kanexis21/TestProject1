@@ -3,9 +3,9 @@ using TestProject.LoadHandler.CsvControl;
 
 namespace TestProject.LoadHandler.InterfaceCsv
 {
-    public interface ICsvRecordProcessor
+    public interface ICsvRecordProcessor<TRecord>
     {
-        bool IsRecordValid(CsvRecord record);
-        Process ProcessRecord(CsvRecord record);
+        bool IsRecordValid(TRecord record);
+        Process ProcessRecord(TRecord record);
     }
 }
