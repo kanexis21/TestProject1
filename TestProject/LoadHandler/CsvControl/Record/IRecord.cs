@@ -7,18 +7,25 @@ using System.Threading.Tasks;
 
 namespace TestProject.LoadHandler.CsvControl.Record
 {
-    public abstract class CsvRecordProcess
+    public abstract class CsvRecord
+    {
+        public abstract string CategoryName { get; set; }
+        public abstract string ProcessCode { get; set; }
+        public abstract string ProcessName { get; set; }
+        public abstract string OwnerDepartmentName { get; set; }
+    }
+    public class CsvRecordProcess : CsvRecord
     {
         [Name("Категория процесса")]
-        public abstract string CategoryName { get; set; }
+        public override string CategoryName { get; set; }
 
         [Name("Код процесса")]
-        public abstract string ProcessCode { get; set; }
+        public override string ProcessCode { get; set; }
 
         [Name("Наименование процесса")]
-        public abstract string ProcessName { get; set; }
+        public override string ProcessName { get; set; }
 
         [Name("Подразделение-владелец процесса")]
-        public abstract string OwnerDepartmentName { get; set; }
+        public override string OwnerDepartmentName { get; set; }
     }
 }
